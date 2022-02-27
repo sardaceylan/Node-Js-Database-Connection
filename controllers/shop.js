@@ -53,22 +53,30 @@ exports.getProductsByCategoryId = (req, res, next) => {
 
 
 exports.getProduct = (req, res, next) => {
-    const product = Product.getById(req.params.productid);
+    Product.getById(req.params.productid)
+        .then(product => {
 
-    res.render('shop/product-detail', {
-        title: product.name,
-        product: product,
-        path: '/products'
-    });
+            console.log(product[0][0]);
+            res.render('shop/product-detail', {
+                title: product[0][0].name,
+                product: product[0][0],
+                path: '/products'
+            });
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+
+
 }
 
 
-exports.getProductDetails = (req, res, next) => {
-    res.render('shop/details', {
-        title: 'Details',
-        path: '/details'
-    });
-}
+// exports.getProductDetails = (req, res, next) => {
+//     res.render('shop/details', {
+//         title: 'Details',
+//         path: '/details'
+//     });
+// }
 
 exports.getCart = (req, res, next) => {
     res.render('shop/cart', {

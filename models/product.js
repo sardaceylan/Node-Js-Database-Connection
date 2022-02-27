@@ -14,10 +14,11 @@ module.exports = class Product {
     }
 
     static getAll() {
-        return connection.execute('SELECT * FROM PRODUCTS');
+        return connection.execute('SELECT * FROM PRODUCTS WHERE price=2000');
     }
 
     static getById(id) {
+        return connection.execute("SELECT * FROM PRODUCTS WHERE PRODUCTS.id=?",[id]);
     }
 
     static getProductsByCategoryId(categoryid) {
