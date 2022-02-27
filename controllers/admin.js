@@ -5,18 +5,18 @@ exports.getProducts = (req, res, next) => {
     const products = Product.getAll();
 
     Product.getAll()
-    .then(products=>{
-        res.render('admin/products', {
-            title: 'Admin Products',
-            products: products[0],
-            path: '/admin/products',
-            action: req.query.action
-        });
-    })
-    .catch(err=>{
-        console.log(err);
-    })
-    
+        .then(products => {
+            res.render('admin/products', {
+                title: 'Admin Products',
+                products: products[0],
+                path: '/admin/products',
+                action: req.query.action
+            });
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
 }
 
 exports.getAddProduct = (req, res, next) => {
@@ -37,8 +37,13 @@ exports.postAddProduct = (req, res, next) => {
     product.categoryid = req.body.categoryid;
     product.description = req.body.description;
 
-    product.saveProduct();
-    res.redirect('/');
+    product.saveProduct()
+        .then(() => {
+            res.redirect('/');
+        })
+        .catch((err) => {
+            console.log(err);
+        });
 }
 
 exports.getEditProduct = (req, res, next) => {
@@ -62,16 +67,23 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postEditProduct = (req, res, next) => {
 
-    const product = Product.getById(req.body.id);
+    const product = new Product();
 
+    product.id = req.body.id;
     product.name = req.body.name;
     product.price = req.body.price;
     product.imageUrl = req.body.imageUrl;
     product.description = req.body.description;
     product.categoryid = req.body.categoryid;
 
-    Product.Update(product);
-    res.redirect('/admin/products?action=edit');
+
+    Product.Update(product)
+        .then(()=>{
+            res.redirect("/admin/products?action=edit");
+        })
+        .catch(err => {
+            console.log(err);
+        });
 }
 
 exports.postDeleteProduct = (req, res, next) => {
