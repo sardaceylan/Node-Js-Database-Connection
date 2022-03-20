@@ -2,11 +2,11 @@ const Product = require("../models/product");
 const Category = require("../models/category");
 
 exports.getProducts = (req, res, next) => {
-  Product.getAll()
+  Product.findAll()
     .then((products) => {
       res.render("admin/products", {
         title: "Admin Products",
-        products: products[0],
+        products: products,
         path: "/admin/products",
         action: req.query.action,
       });
@@ -17,17 +17,6 @@ exports.getProducts = (req, res, next) => {
 };
 
 exports.getAddProduct = (req, res, next) => {
-  // Category.getAll()
-  //     .then(categories => {
-  //         res.render('admin/add-product', {
-  //             title: 'New Product',
-  //             path: '/admin/add-product',
-  //             categories: categories[0]
-  //         });
-  //     })
-  //     .catch(err => {
-  //         console.log(err);
-  //     });
   res.render("admin/add-product", {
     title: "New Product",
     path: "/admin/add-product",
@@ -59,6 +48,8 @@ exports.postAddProduct = (req, res, next) => {
       console.log(err);
     }); */
 
+  // * 2.Yöntem
+
   const prd = Product.build({
     name: name,
     price: price,
@@ -72,25 +63,18 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/");
     })
     .catch((err) => console.log(err));
-  // product.saveProduct()
-  //     .then(() => {
-  //         res.redirect('/');
-  //     })
-  //     .catch((err) => {
-  //         console.log(err);
-  //     });
 };
 
 exports.getEditProduct = (req, res, next) => {
-  Product.getById(req.params.productid)
+  Product.findByPk(req.params.productid)
     .then((product) => {
-      Category.getAll()
+      Category.findAll()
         .then((categories) => {
           res.render("admin/edit-product", {
             title: "Edit Product",
             path: "/admin/products",
-            product: product[0][0],
-            categories: categories[0],
+            product: product,
+            categories: categories,
           });
         })
         .catch((err) => {
