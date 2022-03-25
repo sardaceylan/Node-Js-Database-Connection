@@ -26,9 +26,18 @@ Product.belongsTo(Category, {
 Category.hasMany(Product);
 
 sequelize
-  .sync({ force: true })
-  .then((result) => {
-    console.log(result);
+  // .sync({ force: true })
+  .sync()
+  .then(() => {
+    Category.count().then((count) => {
+      if (count === 0) {
+        Category.bulkCreate([
+          { name: "Telefon", description: "telefon" },
+          { name: "Bilgisayar", description: "bilgisayar" },
+          { name: "Elektronik", description: "elektronik" },
+        ]);
+      }
+    });
   })
   .catch((err) => {
     console.log(err);

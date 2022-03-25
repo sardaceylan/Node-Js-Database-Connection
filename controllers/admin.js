@@ -17,52 +17,54 @@ exports.getProducts = (req, res, next) => {
 };
 
 exports.getAddProduct = (req, res, next) => {
-  res.render("admin/add-product", {
-    title: "New Product",
-    path: "/admin/add-product",
+  Category.findAll().then((categories) => {
+    res.render("admin/add-product", {
+      title: "New Product",
+      path: "/admin/add-product",
+      categories: categories,
+    });
   });
 };
 
 exports.postAddProduct = (req, res, next) => {
-  const product = new Product();
 
   const name = req.body.name;
   const price = req.body.price;
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
-  // const categoryid = req.body.categoryid;
+  const categoryid = req.body.categoryid;
 
   // * 1.Yöntem
 
-  /*  Product.create({
+  Product.create({
     name: name,
     price: price,
     imageUrl: imageUrl,
     description: description,
+    categoryId: categoryid,
   })
-    .then((result) => {
-      console.log(result);
+    .then(() => {
       res.redirect("/");
     })
     .catch((err) => {
       console.log(err);
-    }); */
+    });
 
   // * 2.Yöntem
 
-  const prd = Product.build({
-    name: name,
-    price: price,
-    imageUrl: imageUrl,
-    description: description,
-  });
-  prd
-    .save()
-    .then((result) => {
-      console.log(result);
-      res.redirect("/");
-    })
-    .catch((err) => console.log(err));
+  // const prd = Product.build({
+  //   name: name,
+  //   price: price,
+  //   imageUrl: imageUrl,
+  //   description: description,
+  // });
+  // prd
+  //   .save()
+  //   .then((result) => {
+  //     console.log(result);
+  //     res.redirect("/");
+  //   })
+  //   .catch((err) => console.log(err));
 };
 
 exports.getEditProduct = (req, res, next) => {
@@ -89,15 +91,25 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const product = new Product();
 
-  product.id = req.body.id;
-  product.name = req.body.name;
-  product.price = req.body.price;
-  product.imageUrl = req.body.imageUrl;
-  product.description = req.body.description;
-  product.categoryid = req.body.categoryid;
+  const id = req.body.id;
+  const name = req.body.name;
+  const price = req.body.price;
+  const imageUrl = req.body.imageUrl;
+  const description = req.body.description;
+  const categoryid = req.body.categoryid;
 
-  Product.Update(product)
-    .then(() => {
+  Product.findByPk(id)
+    .then((product) => {
+      product.id = id;
+      product.name = name;
+      product.price = price;
+      product.imageUrl = imageUrl;
+      product.description = description;
+      product.categoryId = categoryid;
+      return product.save();
+    })
+    .then((result) => {
+      console.log(result);
       res.redirect("/admin/products?action=edit");
     })
     .catch((err) => {
@@ -106,25 +118,24 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.postDeleteProduct = (req, res, next) => {
+  const id = req.body.productid;
 
-    const id = req.body.productid;
-
-    Product.findByPk(id)
-        .then(product => {
-            return product.destroy();
-        })
-        .then(result => {
-            console.log('product has been deleted.');
-            res.redirect('/admin/products?action=delete');
-        })
-        .catch(err => {
-            console.log(err);
-        });
-    /*
+  Product.findByPk(id)
+    .then((product) => {
+      return product.destroy();
+    })
+    .then((result) => {
+      console.log("product has been deleted.");
+      res.redirect("/admin/products?action=delete");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  /*
     Product.destroy({ where: { id: id } }).then(() => {
         res.redirect('/admin/products?action=delete');
     }).catch(err => {
         console.log(err);
     });
     */
-}
+};
