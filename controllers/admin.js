@@ -27,16 +27,17 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
-
   const name = req.body.name;
   const price = req.body.price;
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const categoryid = req.body.categoryid;
+  const user = req.user;
+
 
   // * 1.Yöntem
 
-  Product.create({
+  user.createProduct({
     name: name,
     price: price,
     imageUrl: imageUrl,

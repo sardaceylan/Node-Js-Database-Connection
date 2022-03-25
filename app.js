@@ -15,6 +15,7 @@ const sequelize = require("./utility/database");
 
 const Category = require("./models/category");
 const Product = require("./models/product");
+const User = require("./models/user");
 
 // Product.hasOne(Category);
 
@@ -25,19 +26,34 @@ Product.belongsTo(Category, {
 });
 Category.hasMany(Product);
 
+Product.belongsTo(User);
+User.hasMany(Product);
+
 sequelize
   // .sync({ force: true })
   .sync()
   .then(() => {
-    Category.count().then((count) => {
-      if (count === 0) {
-        Category.bulkCreate([
-          { name: "Telefon", description: "telefon" },
-          { name: "Bilgisayar", description: "bilgisayar" },
-          { name: "Elektronik", description: "elektronik" },
-        ]);
-      }
-    });
+    User.findByPk(1)
+      .then((user) => {
+        if (!user) {
+          return User.create({
+            name: "sardaceylan",
+            email: "ardaceylan@yahoo.com",
+          });
+        }
+        return user;
+      })
+      .then((user) => {
+        Category.count().then((count) => {
+          if (count === 0) {
+            Category.bulkCreate([
+              { name: "Telefon", description: "telefon" },
+              { name: "Bilgisayar", description: "bilgisayar" },
+              { name: "Elektronik", description: "elektronik" },
+            ]);
+          }
+        });
+      });
   })
   .catch((err) => {
     console.log(err);
@@ -46,6 +62,14 @@ sequelize
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use((req, res, next) => {
+  User.findByPk(1)
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => console.log(err));
+});
 // routes
 app.use("/admin", adminRoutes);
 app.use(userRoutes);
