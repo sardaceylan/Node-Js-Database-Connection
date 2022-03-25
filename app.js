@@ -11,10 +11,22 @@ const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/shop");
 
 const errorController = require("./controllers/errors");
-const sequelize = require("./utility/database")
+const sequelize = require("./utility/database");
+
+const Category = require("./models/category");
+const Product = require("./models/product");
+
+// Product.hasOne(Category);
+
+Product.belongsTo(Category, {
+  foreignKey: {
+    allowNull: false,
+  },
+});
+Category.hasMany(Product);
 
 sequelize
-  .sync()
+  .sync({ force: true })
   .then((result) => {
     console.log(result);
   })
