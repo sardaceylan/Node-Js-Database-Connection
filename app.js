@@ -16,6 +16,8 @@ const sequelize = require("./utility/database");
 const Category = require("./models/category");
 const Product = require("./models/product");
 const User = require("./models/user");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cartItem");
 
 // Product.hasOne(Category);
 
@@ -29,9 +31,16 @@ Category.hasMany(Product);
 Product.belongsTo(User);
 User.hasMany(Product);
 
+User.hasOne(Cart);
+Cart.belongsTo(User);
+
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
+
+let _user;
 sequelize
-  // .sync({ force: true })
-  .sync()
+  .sync({ force: true })
+  // .sync()
   .then(() => {
     User.findByPk(1)
       .then((user) => {
@@ -44,6 +53,16 @@ sequelize
         return user;
       })
       .then((user) => {
+        _user = user;
+        return user.getCart();
+      })
+      .then((cart) => {
+        if (!cart) {
+          return _user.createCart();
+        }
+        return cart;
+      })
+      .then(() => {
         Category.count().then((count) => {
           if (count === 0) {
             Category.bulkCreate([
@@ -53,29 +72,29 @@ sequelize
             ]);
           }
         });
+      })
+      .catch((err) => {
+        console.log(err);
       });
-  })
-  .catch((err) => {
-    console.log(err);
+
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(express.static(path.join(__dirname, "public")));
+
+    app.use((req, res, next) => {
+      User.findByPk(1)
+        .then((user) => {
+          req.user = user;
+          next();
+        })
+        .catch((err) => console.log(err));
+    });
+    // routes
+    app.use("/admin", adminRoutes);
+    app.use(userRoutes);
+
+    app.use(errorController.get404Page);
+
+    app.listen(3000, () => {
+      console.log("listening on port 3000");
+    });
   });
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
-
-app.use((req, res, next) => {
-  User.findByPk(1)
-    .then((user) => {
-      req.user = user;
-      next();
-    })
-    .catch((err) => console.log(err));
-});
-// routes
-app.use("/admin", adminRoutes);
-app.use(userRoutes);
-
-app.use(errorController.get404Page);
-
-app.listen(3000, () => {
-  console.log("listening on port 3000");
-});
